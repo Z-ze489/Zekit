@@ -10,7 +10,6 @@ ship these notices with it.
 | GLM | 0.9.9.8 | MIT | `inc/glm/` |
 | SOIL2 (incl. stb_image) | — | MIT | `inc/SOIL2/` |
 | glad | 2.x (generated) | MIT | `inc/glad/` |
-| nlohmann/json | 3.x (single header) | MIT | `inc/nlohmann/json.hpp` |
 | Vulkan-Headers | 1.3.x | Apache-2.0 | `inc/Include/vulkan/` |
 
 ---
@@ -42,7 +41,6 @@ applies to each of them:
 - **SOIL2** — Copyright (c) Jonathan Dummer, SpartanJ. Simple OpenGL Image Library 2.
 - **stb_image** — public domain / MIT (dual), bundled inside SOIL2.
 - **glad** — Copyright (c) 2013-2024 David Herberth. Generated loader, MIT.
-- **nlohmann/json** — Copyright (c) 2013-2024 Niels Lohmann.
 
 ```
 MIT License

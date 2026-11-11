@@ -201,7 +201,7 @@ Zekit/
 │   ├── *.cpp / *.h         实现（Plat / Kit / Rhi）
 │   ├── third_party/        FreeType 2.14.1 源码（编进库里）
 │   └── shaders/            Metal 着色器源码（为苹果端保留）
-├── inc/                    第三方头文件：Vulkan、GLM、SOIL2、glad、nlohmann
+├── inc/                    第三方头文件：Vulkan、GLM、SOIL2、glad
 ├── examples/gallery/       Control Gallery
 └── assets/                 截图
 ```

@@ -247,7 +247,7 @@ Zekit/
 │   ├── *.cpp / *.h         implementation (Plat / Kit / Rhi)
 │   ├── third_party/        FreeType 2.14.1 sources (compiled into the library)
 │   └── shaders/            Metal shader source (kept for the Apple port)
-├── inc/                    third-party headers: Vulkan, GLM, SOIL2, glad, nlohmann
+├── inc/                    third-party headers: Vulkan, GLM, SOIL2, glad
 ├── examples/gallery/       the Control Gallery shown above
 └── assets/                 screenshots
 ```
