@@ -111,12 +111,11 @@ endif()
 
 zekit_freetype_sources(ZEKIT_FT_SOURCES)
 add_library(zekit_freetype OBJECT ${ZEKIT_FT_SOURCES})
-# Include order matters: the vendored inc/ comes first (it decides the
-# ftoption / ftmodule configuration), the source tree's own include/ second (it
-# provides freetype/internal/, required to build the modules - the vendored copy
-# only ships public headers).
+# FreeType's headers come straight from the vendored source tree. There used to
+# be a second copy under inc/freetype; it was byte-identical apart from line
+# endings, so having two of them only created the risk of editing one and
+# wondering why nothing changed.
 target_include_directories(zekit_freetype PRIVATE
-    "${ZEKIT_INC}"
     "${ZEKIT_FT}/include")
 target_compile_definitions(zekit_freetype PRIVATE FT2_BUILD_LIBRARY)
 if(MSVC)
@@ -176,14 +175,16 @@ endif()
 # ---- Include surface ----
 # PUBLIC: downstream only needs -I Zekit/include to #include <Zekit.h>
 # PRIVATE: the implementation needs (1) the internal header directory, which is
-#          the base for "include/xxx.h" style includes, and (2) the third-party
-#          headers (freetype / SOIL2 / glad / glm / vulkan).
+#          the base for "include/xxx.h" style includes, (2) the third-party
+#          headers (SOIL2 / glad / glm / vulkan), and (3) FreeType's headers,
+#          which the wrappers include as <ft2build.h>.
 target_include_directories(zekit PUBLIC
     "${ZEKIT_SRC}/include")
 target_include_directories(zekit PRIVATE
     "${ZEKIT_SRC}"
     "${ZEKIT_INC}"
-    "${ZEKIT_INC3}")
+    "${ZEKIT_INC3}"
+    "${ZEKIT_FT}/include")
 
 # ---- Compile definitions ----
 # VK_NO_PROTOTYPES must be defined on EVERY translation unit in the library.
