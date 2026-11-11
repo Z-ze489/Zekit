@@ -14,8 +14,15 @@ cmake --build build -j
 ```
 
 The library is pulled in as a subdirectory (`../..`), so nothing has to be built
-first. On Windows the executable lands in `build/Debug/ZekitGallery.exe` or
-`build/Release/`; on Linux in `build/ZekitGallery`.
+first.
+
+The executable always lands in **`build/bin/ZekitGallery.exe`** (Windows) or
+**`build/bin/ZekitGallery`** (Linux) — no `Release/` or `Debug/` subdirectory, and
+the same path for Ninja and Visual Studio alike. CMake prints it at configure time.
+
+> Building from the repository root instead? The gallery is off by default, so a
+> plain `cmake --preset windows-msvc` produces only `Zekit.lib`. Add
+> `-DZEKIT_BUILD_EXAMPLES=ON` to get the program.
 
 To rebuild it together with the library:
 

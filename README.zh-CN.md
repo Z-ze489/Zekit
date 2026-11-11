@@ -114,12 +114,41 @@ target_link_libraries(my_app PRIVATE zekit::zekit)
 
 ### 编译示例程序
 
+示例**默认不编**——直接跑 `cmake --preset windows-msvc` 只得到 `Zekit.lib`，没有程序。
+要出程序必须显式打开开关：
+
+```bat
+cmake --preset windows-msvc -DZEKIT_BUILD_EXAMPLES=ON
+cmake --build --preset windows-msvc-release
+```
+
+也可以单独配示例目录（它会把库作为子目录带进来，不需要事先编库）：
+
 ```bash
 cmake -S examples/gallery -B build/gallery
 cmake --build build/gallery -j
 ```
 
-它会把库作为子目录带进来，不需要事先编库。也可以在编库时加 `-DZEKIT_BUILD_EXAMPLES=ON` 一起编。
+两种方式产物都落在 **`<构建目录>/bin/ZekitGallery.exe`**，与生成器无关，也没有
+Release/Debug 子目录：
+
+| 用的构建目录 | 可执行文件 |
+|---|---|
+| `build/msvc`（preset） | `build/msvc/bin/ZekitGallery.exe` |
+| `build/gallery`（单独配） | `build/gallery/bin/ZekitGallery.exe` |
+
+配置结束时 CMake 会把完整路径打出来：
+
+```
+--   library : .../Zekit/x64/<Config>/Zekit.lib
+--   gallery : .../build/msvc/bin/ZekitGallery.exe
+```
+
+没加开关时会给一句提示：
+
+```
+-- Examples are NOT built. For the Control Gallery, configure with -DZEKIT_BUILD_EXAMPLES=ON
+```
 
 ### 双击没反应、窗口没出现、进程一闪就退
 

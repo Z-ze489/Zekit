@@ -327,9 +327,26 @@ install(DIRECTORY "${ZEKIT_SRC}/include/"
 # =====================================================================
 #  Examples (optional): examples/gallery shows every widget in the library
 # =====================================================================
-option(ZEKIT_BUILD_EXAMPLES "Also build the programs under examples/" OFF)
+#  Off by default: someone consuming the library wants the .lib and nothing
+#  else, and the gallery costs two more translation units to build. But say so
+#  out loud - silently not producing a program is how people end up staring at
+#  an empty build directory wondering what went wrong.
+option(ZEKIT_BUILD_EXAMPLES "Also build the programs under examples/ (the Control Gallery)" OFF)
 if(ZEKIT_BUILD_EXAMPLES)
     add_subdirectory(examples/gallery)
+else()
+    message(STATUS "Examples are NOT built. For the Control Gallery, configure with -DZEKIT_BUILD_EXAMPLES=ON")
 endif()
 
-message(STATUS "Zekit ${PROJECT_VERSION} - platform ${ZEKIT_PLATFORM}, artifact ${CMAKE_STATIC_LIBRARY_PREFIX}Zekit${CMAKE_STATIC_LIBRARY_SUFFIX}")
+# =====================================================================
+#  Summary: state where the artifacts land, so nobody has to go hunting
+# =====================================================================
+message(STATUS "Zekit ${PROJECT_VERSION} - platform ${ZEKIT_PLATFORM}")
+if(ZEKIT_PLATFORM STREQUAL "WINDOWS")
+    message(STATUS "  library : ${ZEKIT_ROOT}/x64/<Config>${_zekit_out_suffix}/Zekit.lib")
+else()
+    message(STATUS "  library : ${CMAKE_BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}Zekit${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif()
+if(ZEKIT_BUILD_EXAMPLES)
+    message(STATUS "  gallery : ${CMAKE_BINARY_DIR}/bin/ZekitGallery${CMAKE_EXECUTABLE_SUFFIX}")
+endif()

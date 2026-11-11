@@ -44,11 +44,24 @@ add_executable(ZekitGallery
 
 target_link_libraries(ZekitGallery PRIVATE zekit)
 
+# Always land in <build>/bin/ZekitGallery[.exe], never in a per-config
+# subdirectory and never inside the source tree. Multi-config generators
+# (Visual Studio) otherwise append Release/ or Debug/, and the "where is my
+# exe" question gets a different answer depending on which generator you used.
+set_target_properties(ZekitGallery PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+foreach(_cfg DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_target_properties(ZekitGallery PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${_cfg} "${CMAKE_BINARY_DIR}/bin")
+endforeach()
+
 if(MSVC)
     target_compile_options(ZekitGallery PRIVATE /utf-8)
 else()
     target_compile_options(ZekitGallery PRIVATE -Wall -Wextra -Wno-unused-parameter)
 endif()
+
+message(STATUS "ZekitGallery -> ${CMAKE_BINARY_DIR}/bin/ZekitGallery${CMAKE_EXECUTABLE_SUFFIX}")
 
 # For a single-file exe that starts on a machine without the VC++ runtime, build
 # the library and this program with the static CRT:

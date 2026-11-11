@@ -142,13 +142,42 @@ X11 and friends automatically.
 
 ### Building the examples
 
+The gallery is **not** built by default — a plain `cmake --preset windows-msvc`
+gives you `Zekit.lib` and nothing else. Pass the option to get the program:
+
+```bat
+cmake --preset windows-msvc -DZEKIT_BUILD_EXAMPLES=ON
+cmake --build --preset windows-msvc-release
+```
+
+Or configure the example on its own; it pulls the library in as a subdirectory,
+so nothing has to be built beforehand:
+
 ```bash
 cmake -S examples/gallery -B build/gallery
 cmake --build build/gallery -j
 ```
 
-This pulls the library in as a subdirectory, so nothing has to be built beforehand.
-Or enable it while building the library itself: `-DZEKIT_BUILD_EXAMPLES=ON`.
+Either way the executable lands in **`<build>/bin/ZekitGallery.exe`** — the same
+place for every generator, with no per-configuration subdirectory:
+
+| Build directory used | Executable |
+|---|---|
+| `build/msvc` (preset) | `build/msvc/bin/ZekitGallery.exe` |
+| `build/gallery` (standalone) | `build/gallery/bin/ZekitGallery.exe` |
+
+CMake prints the exact path at the end of the configure step:
+
+```
+--   library : .../Zekit/x64/<Config>/Zekit.lib
+--   gallery : .../build/msvc/bin/ZekitGallery.exe
+```
+
+If you configure without the option you get a reminder instead:
+
+```
+-- Examples are NOT built. For the Control Gallery, configure with -DZEKIT_BUILD_EXAMPLES=ON
+```
 
 ### When nothing appears
 
