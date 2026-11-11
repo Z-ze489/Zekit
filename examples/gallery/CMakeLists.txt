@@ -1,16 +1,17 @@
 # =====================================================================
-#  Zekit Control Gallery —— 示例程序
+#  Zekit Control Gallery - example program
 # =====================================================================
-#  一个窗口把 Zekit 的全部控件摆出来：长什么样、来自哪个头文件、常用 setter
-#  怎么调。它同时是"这个库能干什么"的说明书，和最快的冒烟测试。
+#  One window that puts every Zekit widget on screen: what it looks like, which
+#  header it comes from, how the common setters are used. It doubles as the
+#  "what can this library do" document and as the fastest smoke test.
 #
-#  怎么编（不需要先编库，本文件会把 ../.. 作为子目录带进来）：
+#  Build (no need to build the library first, this file pulls ../.. in):
 #      cmake -S examples/gallery -B build/gallery
 #      cmake --build build/gallery -j
 #      Windows: build/gallery/Debug/ZekitGallery.exe
 #      Linux  : build/gallery/ZekitGallery
 #
-#  在仓库根目录编库时一并带上示例：
+#  To build it together with the library from the repository root:
 #      cmake --preset windows-msvc -DZEKIT_BUILD_EXAMPLES=ON
 # =====================================================================
 cmake_minimum_required(VERSION 3.22)
@@ -20,16 +21,19 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# 从仓库根目录进来时 zekit 目标已存在；单独编本目录时把库源码带进来。
+# When configured from the repository root the zekit target already exists.
+# When this directory is configured on its own, pull the library sources in.
 if(NOT TARGET zekit)
     set(ZEKIT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.."
                      "${CMAKE_BINARY_DIR}/zekit")
 endif()
 
-# 库用静态 CRT（/MT）时，本示例必须跟着用 —— 两种 CRT 的目标文件不能混链。
-# 单独编本目录时（上面那段 add_subdirectory）顶层设的变量不会回流到这里，
-# 所以这里再补一次；必须在第一个 target() 之前。
+# If the library is built with the static CRT (/MT), this program must use it
+# too - objects from the two CRTs cannot be linked together.
+# The variable set by the root project does not flow back up here when this
+# directory is configured on its own, so set it again; it has to happen before
+# the first target() call.
 if(MSVC AND ZEKIT_STATIC_CRT)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
@@ -46,6 +50,7 @@ else()
     target_compile_options(ZekitGallery PRIVATE -Wall -Wextra -Wno-unused-parameter)
 endif()
 
-# 单文件 exe（不要求用户装 VC++ 运行时的）用静态 CRT 库：
-#   cmake --preset windows-msvc-mt && cmake --build --preset windows-msvc-mt-release
-#   然后 -DZEKIT_STATIC_CRT=ON 重编本示例即可。
+# For a single-file exe that starts on a machine without the VC++ runtime, build
+# the library and this program with the static CRT:
+#   cmake --preset windows-msvc-mt -DZEKIT_BUILD_EXAMPLES=ON
+#   cmake --build --preset windows-msvc-mt-release

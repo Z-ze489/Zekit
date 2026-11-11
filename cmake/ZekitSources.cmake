@@ -1,23 +1,28 @@
 # =====================================================================
-#  Zekit 源文件清单 —— **所有平台共用的唯一来源**
+#  Zekit source list - the single source of truth for every platform
 # =====================================================================
-#  为什么要有这个文件：
-#    以前同一份清单要人工维护在四个地方（Zekit.vcxproj 的 <ClCompile>、
-#    build_zekit.sh 的 SRCS、build_zekit_linux.sh 的 glob+skip、
-#    android/apple 的 CMakeLists）。漏登记一处的代价不是编译报错，而是
-#    "库少一批符号、下游 LNK2001"（源码地图 §十七 / §二十二 记过两次）。
+#  Why this file exists:
+#    The same list used to be maintained by hand in four places (the
+#    <ClCompile> block of Zekit.vcxproj, SRCS in build_zekit.sh, the glob+skip
+#    in build_zekit_linux.sh, and the android/apple CMakeLists). The cost of
+#    forgetting one was never a compile error - it was "the library is missing
+#    a batch of symbols and downstream fails with LNK2001".
 #
-#  现在只有两条规则：
-#    ① **跨平台文件不用登记** —— 直接 glob `Zekit/*.cpp`，新增文件自动进构建；
-#    ② **平台专属文件登记一次**，写进下面四张表之一。判据是"这个文件在别的
-#       平台上编不过"，而不是"它属于哪个功能模块"。
+#  There are now only two rules:
+#    1. Cross-platform files are not registered anywhere - Zekit/*.cpp is
+#       globbed, so a new file joins the build by itself;
+#    2. Platform-only files are registered once, in one of the four tables
+#       below. The criterion is "this file does not compile on other
+#       platforms", not "it belongs to feature X".
 #
-#  ⚠️ 加新文件的判断顺序（很重要）：
-#    先问"它有没有文件级平台守卫？"—— 有（如 ZeWindowHarmony.cpp 的
-#    `#if defined(__OHOS__)`）就仍然要登记进表里：省一次无意义的编译，也让
-#    "哪些文件属于别的平台"在这张表上一眼看全；
-#    没有（如 ZeRenderBackendAndroid.cpp，一上来就 include <android/...>）则
-#    **必须**登记，否则会在其它平台上直接编译失败。
+#  WARNING - order of questions when adding a file (this matters):
+#    First ask: does it have a file-level platform guard? If yes (e.g.
+#    #if defined(__OHOS__) in ZeWindowHarmony.cpp) it still belongs in the
+#    table: it saves a pointless compile on other platforms and keeps "which
+#    files belong to other platforms" visible in one place.
+#    If no (e.g. ZeRenderBackendAndroid.cpp, which includes <android/...> right
+#    away), it MUST be registered, otherwise the other platforms simply fail to
+#    build.
 # =====================================================================
 
 set(ZEKIT_SRC  "${CMAKE_CURRENT_LIST_DIR}/../Zekit")
@@ -26,11 +31,13 @@ set(ZEKIT_INC3 "${CMAKE_CURRENT_LIST_DIR}/../inc/Include")
 set(ZEKIT_FT   "${ZEKIT_SRC}/third_party/freetype-2.14.1")
 
 # ---------------------------------------------------------------------
-#  平台专属 .cpp（相对 Zekit/ 的文件名）
+#  Platform-only .cpp files (names relative to Zekit/)
 # ---------------------------------------------------------------------
-#  ★ 同一个功能在不同平台上必然是"一份实现"，所以这些文件**只属于一个平台**。
-#  ★ ZeEglContext / ZeSoilCompat 同时属于 Linux 与 Android（EGL 是两者的共同
-#    窗口系统；ZeSoilCompat 在两者都替代 SOIL2.c —— 同名符号不能同时编）。
+#  A given feature has exactly one implementation per platform, so these files
+#  belong to one platform each.
+#  ZeEglContext / ZeSoilCompat belong to both Linux and Android (EGL is their
+#  common window system, and ZeSoilCompat replaces SOIL2.c on both - the same
+#  symbols cannot be compiled twice).
 set(ZEKIT_PLATFORM_FILES_WINDOWS
     ZeWindowWin32.cpp
     ZeGLContext.cpp
@@ -61,7 +68,7 @@ set(ZEKIT_PLATFORM_FILES_APPLE
     ZeMetalUIRenderer.mm
 )
 
-# 所有"被某个平台独占"的文件 —— 用来反推"本平台该排除谁"
+# Every file "owned" by some platform - used to derive who this platform excludes
 set(_ZEKIT_ALL_PLATFORM_FILES
     ${ZEKIT_PLATFORM_FILES_WINDOWS}
     ${ZEKIT_PLATFORM_FILES_LINUX}
@@ -73,16 +80,17 @@ set(_ZEKIT_ALL_PLATFORM_FILES
 # ---------------------------------------------------------------------
 #  zekit_collect_sources(<PLATFORM> <out_var>)
 # ---------------------------------------------------------------------
-#  PLATFORM ∈ WINDOWS / LINUX / ANDROID / HARMONY / APPLE
-#  返回：该平台要参与编译的**绝对路径**列表，写进 <out_var>（PARENT_SCOPE）。
+#  PLATFORM is one of WINDOWS / LINUX / ANDROID / HARMONY / APPLE.
+#  Returns the absolute path list to compile for that platform in <out_var>
+#  (PARENT_SCOPE).
 #
-#  实现 = "全量 glob − 别人的专属文件 + 自己的专属文件"。
-#  ★ 用 CONFIGURE_DEPENDS：往 Zekit/ 里丢一个新 .cpp 时，下次 build 会自动
-#    重新 glob（不必手动跑 cmake）。
+#  Implementation = "glob everything - other platforms' files + own files".
+#  CONFIGURE_DEPENDS is used on purpose: dropping a new .cpp into Zekit/ is
+#  picked up by the next build without rerunning cmake by hand.
 function(zekit_collect_sources PLATFORM out_var)
     set(_keep ${ZEKIT_PLATFORM_FILES_${PLATFORM}})
     if(NOT _keep)
-        message(FATAL_ERROR "未知平台 '${PLATFORM}'：可选 WINDOWS / LINUX / ANDROID / HARMONY / APPLE")
+        message(FATAL_ERROR "Unknown platform '${PLATFORM}': expected WINDOWS / LINUX / ANDROID / HARMONY / APPLE")
     endif()
 
     file(GLOB _cpp CONFIGURE_DEPENDS "${ZEKIT_SRC}/*.cpp")
@@ -91,30 +99,31 @@ function(zekit_collect_sources PLATFORM out_var)
     foreach(_f IN LISTS _cpp)
         get_filename_component(_name "${_f}" NAME)
 
-        # ① 文件属于"某个平台"，但不是本平台 → 排除
+        # (1) the file belongs to some platform and this is not it -> skip
         list(FIND _ZEKIT_ALL_PLATFORM_FILES "${_name}" _idx)
         if(_idx GREATER -1 AND NOT _name IN_LIST _keep)
             continue()
         endif()
 
-        # ② 剩下的都是跨平台文件（或本平台的专属文件）→ 收
+        # (2) everything else is cross-platform (or belongs to this platform) -> keep
         list(APPEND _result "${_f}")
     endforeach()
 
-    # 已收文件的文件名（用来判断"平台专属文件是否已经被 glob 带上"）
+    # Names already collected (used to tell whether a platform file came in via the glob)
     set(_result_names "")
     foreach(_f IN LISTS _result)
         get_filename_component(_n "${_f}" NAME)
         list(APPEND _result_names "${_n}")
     endforeach()
 
-    # ③ 本平台的专属文件必须真实存在（防止改名后静默变成"少编一个"），
-    #    并且补上 glob 扫不到的那种（苹果的 .mm —— 上面只 glob 了 *.cpp）
+    # (3) this platform's files must actually exist - renaming a file must not
+    #     silently turn into "one file fewer to compile" - and must be added when
+    #     the glob cannot see them (Apple's .mm files, since only *.cpp is globbed)
     foreach(_name IN LISTS _keep)
         if(NOT EXISTS "${ZEKIT_SRC}/${_name}")
             message(FATAL_ERROR
-                "平台 ${PLATFORM} 的清单里有 '${_name}'，但 ${ZEKIT_SRC}/${_name} 不存在。\n"
-                "  → 文件改名/删除后记得同步 cmake/ZekitSources.cmake 的平台表。")
+                "The ${PLATFORM} list names '${_name}', but ${ZEKIT_SRC}/${_name} does not exist.\n"
+                "  -> after renaming or deleting a file, update the platform tables in cmake/ZekitSources.cmake.")
         endif()
         if(NOT _name IN_LIST _result_names)
             list(APPEND _result "${ZEKIT_SRC}/${_name}")
@@ -122,21 +131,24 @@ function(zekit_collect_sources PLATFORM out_var)
     endforeach()
 
     list(LENGTH _result _n)
-    message(STATUS "Zekit 源文件（${PLATFORM}）：${_n} 个 .cpp")
+    message(STATUS "Zekit sources (${PLATFORM}): ${_n} .cpp files")
     set(${out_var} ${_result} PARENT_SCOPE)
 endfunction()
 
 # ---------------------------------------------------------------------
 #  zekit_freetype_sources(<out_var>)
 # ---------------------------------------------------------------------
-#  FreeType 2.14.1 要编的 43 个模块，清单以官方 docs/INSTALL.ANY 为准
-#  （原文："DO NOT COMPILE ALL C FILES! Rather, compile the following ones."）。
+#  The 43 FreeType 2.14.1 modules to compile, following the official
+#  docs/INSTALL.ANY ("DO NOT COMPILE ALL C FILES! Rather, compile the following
+#  ones.").
 #
-#  ★ ftsystem.c 平台分流：Windows 用 builds/windows/ 那份（走 Win32 文件 API），
-#    其余平台用 src/base/ 的通用实现。
-#  ★ ftgzip.c **自带 zlib**（inflate / adler32 / crc32 都在里面），不需要额外 zlib。
-#  ★ 少编一个不会在编译期报错 —— 只会在链接期报 undefined reference，
-#    所以改这张表之后必须真的链接一次。
+#  ftsystem.c is split by platform: Windows uses the builds/windows/ copy (it
+#  goes through the Win32 file API), every other platform uses the generic one
+#  in src/base/.
+#  ftgzip.c carries its own zlib (inflate / adler32 / crc32 are all inside it),
+#  so no external zlib is needed.
+#  Leaving one module out does not fail at compile time - it fails at link time
+#  with undefined references. After editing this table, actually link something.
 function(zekit_freetype_sources out_var)
     set(_mods
         base/ftbase.c base/ftinit.c base/ftdebug.c
@@ -167,7 +179,7 @@ function(zekit_freetype_sources out_var)
 
     list(LENGTH _out _n)
     if(NOT _n EQUAL 43)
-        message(WARNING "FreeType 模块数 ${_n}（应为 43）—— 检查 cmake/ZekitSources.cmake 的 _mods 表")
+        message(WARNING "FreeType module count is ${_n} (expected 43) - check the _mods table in cmake/ZekitSources.cmake")
     endif()
 
     set(${out_var} ${_out} PARENT_SCOPE)
