@@ -1,0 +1,30 @@
+# Normalise line endings so a Windows checkout and a Linux checkout produce the
+# same bytes. Without this, behaviour depends on each machine's core.autocrlf,
+# and a file committed from Windows can arrive with CRLF on Linux (or the other
+# way round), which shows up as a whole-file diff in reviews.
+#
+# Everything source-like is stored as LF in the repository and checked out as LF
+# on every platform. MSVC, GCC and Clang all accept LF; IDE-only files keep CRLF
+# because Visual Studio writes them that way.
+* text=auto eol=lf
+
+*.sln       text eol=crlf
+*.vcxproj   text eol=crlf
+*.filters   text eol=crlf
+*.vcxproj.user text eol=crlf
+
+# Binary - never touched, never diffed
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.lib   binary
+*.a     binary
+*.exe   binary
+*.dll   binary
+*.spv   binary
+*.metallib binary
+
+# Vendored third-party trees: keep them byte-identical to upstream so a diff
+# against a new release shows only real changes, not line-ending noise.
+Zekit/third_party/** -text
+inc/**               -text
