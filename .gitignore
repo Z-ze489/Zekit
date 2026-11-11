@@ -1,0 +1,48 @@
+# ---- build output ----
+x64/
+build/
+CMakeUserPresets.json
+Debug/
+Release/
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exp
+*.ilk
+*.pdb
+*.exe
+*.app
+*.metallib
+*.air
+
+# ---- IDE / editor ----
+.vs/
+.vscode/
+*.vcxproj.user
+*.suo
+*.user
+.idea/
+*.sln.docstates
+compile_commands.json
+.cache/
+
+# ---- local logs / temp ----
+_build_tmp.log
+*.log
+*.tmp
+*.bak
+
+# ---- OS ----
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- NOT ignored on purpose ----
+#   Zekit/third_party/   FreeType sources, required to build
+#   inc/                 third-party headers, so downstream needs no SDK
+#   examples/            the Control Gallery
+#   assets/              screenshots used by the README

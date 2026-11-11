@@ -1,0 +1,133 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-msvc",
+      "displayName": "Windows / MSVC 2026 (x64)",
+      "description": "VS 2026 generator, multi-config (Debug + Release). Output lands in x64/<Config>/Zekit.lib.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build/msvc",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
+      }
+    },
+    {
+      "name": "windows-vs2022",
+      "displayName": "Windows / MSVC 2022 (x64)",
+      "description": "Same as windows-msvc but for Visual Studio 2022 installs.",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build/vs2022",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
+      }
+    },
+    {
+      "name": "windows-ninja",
+      "displayName": "Windows / Ninja (single config)",
+      "description": "Run from a Developer Command Prompt (vcvars64) or with cl.exe on PATH. Fastest incremental builds.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-msvc-mt",
+      "displayName": "Windows / MSVC 2026 (x64) - static CRT",
+      "description": "Same sources with /MT, for single-file exes that must not require the VC++ runtime. Output: x64/<Config>MT/Zekit.lib.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build/msvc-mt",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "ZEKIT_STATIC_CRT": "ON"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux / GCC - Release",
+      "description": "Needs libx11-dev libgl-dev libegl-dev (plus a GPU driver at run time). Output: libZekit.a.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux / GCC - Debug",
+      "inherits": "linux-release",
+      "binaryDir": "${sourceDir}/build/linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-msvc-release",
+      "displayName": "Windows Release -> x64/Release/Zekit.lib",
+      "configurePreset": "windows-msvc",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-debug",
+      "displayName": "Windows Debug -> x64/Debug/Zekit.lib",
+      "configurePreset": "windows-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-vs2022-release",
+      "displayName": "Windows 2022 Release -> x64/Release/Zekit.lib",
+      "configurePreset": "windows-vs2022",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-vs2022-debug",
+      "displayName": "Windows 2022 Debug -> x64/Debug/Zekit.lib",
+      "configurePreset": "windows-vs2022",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-ninja",
+      "displayName": "Windows Ninja Release",
+      "configurePreset": "windows-ninja"
+    },
+    {
+      "name": "windows-msvc-mt-release",
+      "displayName": "Windows Release (static CRT) -> x64/ReleaseMT/Zekit.lib",
+      "configurePreset": "windows-msvc-mt",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-mt-debug",
+      "displayName": "Windows Debug (static CRT) -> x64/DebugMT/Zekit.lib",
+      "configurePreset": "windows-msvc-mt",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    }
+  ]
+}
