@@ -6,9 +6,10 @@ Window creation, message loop, GPU rendering, widgets, layout, text and IME are 
 in one static library. Downstream projects link a single file — no FreeType install,
 no Vulkan SDK, no third-party setup.
 
-![Zekit Control Gallery](assets/gallery.png)
+![Zekit Control Gallery](assets/gallery.gif)
 
-*Control Gallery — every widget in the library, in one window. Ships in `examples/gallery`.*
+*Control Gallery — every widget in the library, in one window. Light and dark
+themes, switched at run time. Ships in `examples/gallery`.*
 
 ---
 

@@ -7,9 +7,9 @@
 
 [English README](README.md)
 
-![Zekit Control Gallery](assets/gallery.png)
+![Zekit Control Gallery](assets/gallery.gif)
 
-*Control Gallery —— 把库里每个控件摆在一个窗口里。源码在 `examples/gallery`。*
+*Control Gallery —— 把库里每个控件摆在一个窗口里，亮 / 暗主题运行期切换。源码在 `examples/gallery`。*
 
 ## 核心特性
 
