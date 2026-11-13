@@ -16,8 +16,8 @@ themes, switched at run time. Ships in `examples/gallery`.*
 ## Highlights
 
 - **Value-semantic widget tree.** Widgets are plain values: build them on the stack,
-  hand them to the window with `win.AddWidget(btn)`, done. No `new`, no `delete`,
-  no keeping a member alive. Destruction unregisters automatically.
+  hand them over with `win.AddWidget(std::move(btn))` and keep the returned reference.
+  No `new`, no `delete`, no keeping a member alive. Destruction unregisters automatically.
 - **GPU rendering, three backends.** Windows defaults to D3D12 (auto-falls back to
   OpenGL 4.6 Core) and can switch to Vulkan 1.0+. Linux runs OpenGL (EGL) or Vulkan.
   All backends share the same widget layer and display list, so the same UI looks the
@@ -230,11 +230,11 @@ cannot write to, which breaks the shader cache. Copy it to a local disk first.
 int main() {
     Kit::Window win;
 
-    Kit::Button btn("OK");
-    btn.SetPosition(50, 50);
-    btn.SetSize(220, 60);
-    btn.SetOnClick([] { /* ... */ });
-    win.AddWidget(btn);          // handed over; the local can die at end of scope
+    // AddWidget takes ownership and hands back a reference. Configure the returned
+    // reference, not the local you passed in: the local is moved from.
+    Kit::Button& ok = win.AddWidget(Kit::Button("OK"));
+    ok.SetGeometry(50, 50, 220, 60);
+    ok.SetOnClick([](Kit::Widget&) { /* ... */ });
 
     win.Show();
     return win.exec();           // message + render loop, returns when the window closes

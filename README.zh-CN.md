@@ -13,8 +13,8 @@
 
 ## 核心特性
 
-- **值语义的控件树** —— 控件按值构建、按值交给窗口（`win.AddWidget(btn)`），
-  不需要 `new` / `delete`，也不用成员变量保活；析构时自动注销
+- **值语义的控件树** —— 控件按值构建，用 `win.AddWidget(std::move(btn))` 交出去，
+  之后改用它的返回值（引用）；不需要 `new` / `delete`，也不用成员变量保活，析构时自动注销
 - **GPU 渲染，多后端** —— Windows 默认 D3D12（失败自动回退 OpenGL 4.6 Core），
   可切 Vulkan 1.0+；Linux 走 OpenGL（EGL）或 Vulkan。三套后端共用同一份控件层与显示列表，
   同一界面输出一致。后端按窗口选：`win.UseRenderer(Rhi::Api::Vulkan)`
@@ -197,11 +197,11 @@ Linux 上直接从终端运行即可 —— `main()` 本来就有控制台，诊
 int main() {
     Kit::Window win;
 
-    Kit::Button btn("OK");
-    btn.SetPosition(50, 50);
-    btn.SetSize(220, 60);
-    btn.SetOnClick([] { /* ... */ });
-    win.AddWidget(btn);        // 交出去；局部变量可以照常析构
+    // AddWidget 接管所有权并返回引用。之后配置这个引用，不要再碰传进去的那个局部变量
+    // ——它已经被移走了。
+    Kit::Button& ok = win.AddWidget(Kit::Button("OK"));
+    ok.SetGeometry(50, 50, 220, 60);
+    ok.SetOnClick([](Kit::Widget&) { /* ... */ });
 
     win.Show();
     return win.exec();         // 消息循环 + 渲染循环，关窗时返回
