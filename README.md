@@ -16,7 +16,7 @@ themes, switched at run time. Ships in `examples/gallery`.*
 ## Highlights
 
 - **Value-semantic widget tree.** Widgets are plain values: build them on the stack,
-  hand them over with `win.AddWidget(std::move(btn))` and keep the returned reference.
+  hand them over with `win.AddWidget(btn)` and keep the returned reference.
   No `new`, no `delete`, no keeping a member alive. Destruction unregisters automatically.
 - **GPU rendering, three backends.** Windows defaults to D3D12 (auto-falls back to
   OpenGL 4.6 Core) and can switch to Vulkan 1.0+. Linux runs OpenGL (EGL) or Vulkan.

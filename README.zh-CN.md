@@ -13,7 +13,7 @@
 
 ## 核心特性
 
-- **值语义的控件树** —— 控件按值构建，用 `win.AddWidget(std::move(btn))` 交出去，
+- **值语义的控件树** —— 控件按值构建，用 `win.AddWidget(btn)` 交出去，
   之后改用它的返回值（引用）；不需要 `new` / `delete`，也不用成员变量保活，析构时自动注销
 - **GPU 渲染，多后端** —— Windows 默认 D3D12（失败自动回退 OpenGL 4.6 Core），
   可切 Vulkan 1.0+；Linux 走 OpenGL（EGL）或 Vulkan。三套后端共用同一份控件层与显示列表，
