@@ -593,6 +593,22 @@ namespace Kit {
             AppendQuadClipped(a, b, c, d, img->handle, true);
             };
 
+        // ★ 背景图只画在 (x,y,w,h) 这个矩形里 —— 与 CSS background-clip 同义。
+        //   为什么必须在这里统一裁、而不是靠各模式自觉：
+        //   · `Origin` 不缩放、按对齐摆放（默认 Center/Middle），图比矩形大时上下左右
+        //     同时越界；
+        //   · 以前只有 `Tiled` 自己 PushClip，其余四种直接落笔 —— 越界部分会盖住
+        //     **兄弟控件**（2026-11-15 实测：320×80 的按钮配 700×640 的图，居中后
+        //     向上溢出 280px，把上面三行按钮全遮住，肉眼看到的是"五行只剩两行"）。
+        //   PushClip 与外层已有裁剪域**求交**（见其实现），所以不会破坏祖先容器 /
+        //   浮层的裁剪；RAII 兜住下面所有提前 return，避免裁剪栈泄漏。
+        PushClip(x, y, w, h);
+        struct ClipPop {
+            FrameCollector* fc;
+            ~ClipPop() { fc->PopClip(); }
+        } clipPop{ this };
+        (void)clipPop;
+
         if (mode != BgImageDrawMode::Tiled) {
             emit(first);
             return true;
@@ -610,7 +626,7 @@ namespace Kit {
             return true;
         }
 
-        PushClip(x, y, w, h);
+        // 外层已按 (x,y,w,h) PushClip，这里只负责铺块（不再嵌套裁剪）。
         for (int j = 0; j < ny; ++j) {
             for (int i = 0; i < nx; ++i) {
                 ImageDrawRect r = first;
@@ -619,7 +635,6 @@ namespace Kit {
                 emit(r);
             }
         }
-        PopClip();
         return true;
     }
 
