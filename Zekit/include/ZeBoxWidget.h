@@ -86,7 +86,7 @@ namespace Kit {
         //  Text color and decoration line color are in TextWidget (which is the holder of TextStyle).
         // -------------------------------------------------------------------
 
-        void SetBodyColor(const Color4f& c);            /// < background color (normal)
+        void SetBodyColor(const Color4f& c);            /// < background (normal); text is separate -- see TextWidget::SetColors
         void SetHoverBodyColor(const Color4f& c);       /// < background color (hover)
         void SetPressedBodyColor(const Color4f& c);     /// < background color (pressed)
         void SetDisabledBodyColor(const Color4f& c);    /// < background color (disabled)

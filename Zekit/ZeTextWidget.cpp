@@ -142,6 +142,29 @@ namespace Kit {
         RequestWindowRedraw();
     }
 
+    void TextWidget::SetColors(const Color4f& background, const Color4f& border, const Color4f& text) {
+        const WidgetState states[] = {
+            WidgetState::Normal, WidgetState::Hover,
+            WidgetState::Pressed, WidgetState::Disabled,
+        };
+        for (WidgetState s : states) {
+            box_.colors.get(s).background = background;
+            box_.colors.get(s).border = border;
+            textStyle_.colors.get(s).text = text;
+        }
+        markStyled();
+        RequestWindowRedraw();
+    }
+
+    void TextWidget::SetStateColors(WidgetState state, const Color4f& background,
+        const Color4f& border, const Color4f& text) {
+        box_.colors.get(state).background = background;
+        box_.colors.get(state).border = border;
+        textStyle_.colors.get(state).text = text;
+        markStyled();
+        RequestWindowRedraw();
+    }
+
     const TextStyle& TextWidget::themeText(const Theme& t) const { return t.button.text; }
 
     void TextWidget::ApplyTheme(const Theme& t) {

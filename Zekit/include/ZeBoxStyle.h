@@ -74,10 +74,16 @@ namespace Kit {
      * this pitfall was actually hit, see the comment on TextWidget::resolvedTextColors.
      */
     struct ColorSet {
-        Color4f background{ 0.0f, 0.0f, 0.0f, 0.0f };   /// < background fill color (box slot)
-        Color4f border{ 0.0f, 0.0f, 0.0f, 0.0f };   /// < border color (box slot)
-        Color4f text{ 0.0f, 0.0f, 0.0f, 1.0f };   /// < text color (text slot)
-        Color4f decoration{ 0.0f, 0.0f, 0.0f, 1.0f };   /// < decoration line color (text slot)
+        Color4f background{ 0.0f, 0.0f, 0.0f, 0.0f };   /// < background fill (read from BoxStyle::colors)
+        Color4f border{ 0.0f, 0.0f, 0.0f, 0.0f };       /// < border color (read from BoxStyle::colors)
+
+        // The two fields below are only read from TextStyle::colors.
+        // In BoxStyle::colors they are dead data -- writing them changes nothing.
+        // That is why setting only SetBodyColor leaves the text at its theme
+        // color (the classic white-text-on-white-body trap); use
+        // TextWidget::SetColors to set the box and the text in one call.
+        Color4f text{ 0.0f, 0.0f, 0.0f, 1.0f };         /// < text color (read from TextStyle::colors only)
+        Color4f decoration{ 0.0f, 0.0f, 0.0f, 1.0f };   /// < decoration color (read from TextStyle::colors only)
     };
 
     /**

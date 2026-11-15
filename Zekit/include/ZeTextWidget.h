@@ -143,6 +143,22 @@ namespace Kit {
         void SetDisabledDecorationColor(const Color4f& c);  /// < Decoration line color (disabled)
 
         // -------------------------------------------------------------------
+        //  One-call color setup (box + text together)
+        // -------------------------------------------------------------------
+        //  Background/border live in BoxStyle::colors, text lives in TextStyle::colors --
+        //  two independent sets. Setting only the body leaves the text at its theme
+        //  color (white text on a white body). These two helpers set both at once.
+
+        /// @brief Sets background / border / text for Normal, Hover, Pressed and Disabled together
+        /// @note Focused and Loading are left untouched, so the focus ring and the
+        ///       loading tint still come from the theme.
+        void SetColors(const Color4f& background, const Color4f& border, const Color4f& text);
+
+        /// @brief Sets background / border / text for a single state
+        void SetStateColors(WidgetState state, const Color4f& background,
+            const Color4f& border, const Color4f& text);
+
+        // -------------------------------------------------------------------
         //  Theme injection
         // -------------------------------------------------------------------
 
