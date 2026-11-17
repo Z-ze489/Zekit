@@ -246,6 +246,7 @@ int main() {
 `ZEKIT_APP_ENTRY` from `<ZekitApp.h>`:
 
 ```cpp
+#include <Zekit.h>
 #include <ZekitApp.h>
 
 ZEKIT_APP_ENTRY(myApp) {
